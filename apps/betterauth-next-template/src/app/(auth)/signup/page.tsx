@@ -1,0 +1,210 @@
+"use client";
+
+import * as z from "zod";
+import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+
+import { useRouter } from "next/navigation";
+import { useForm } from "@tanstack/react-form";
+
+import { Loader2 } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { FieldError, FieldGroup } from "@/components/ui/field";
+
+const signupSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+type SocialProvider = "google" | "github";
+
+export default function SignupForm() {
+  const router = useRouter();
+  const [pendingProvider, setPendingProvider] = useState<SocialProvider | null>(
+    null,
+  );
+
+  const form = useForm({
+    defaultValues: { username: "", email: "", password: "" },
+    validators: {
+      onChange: signupSchema,
+    },
+    onSubmit: async ({ value }) => {},
+  });
+
+  return (
+    <div className="flex items-center justify-center h-dvh bg-neutral-900">
+      <Card className="w-full max-w-110 bg-[#121212] ">
+        <CardHeader className="space-y-4 pt-4 text-center">
+          <CardTitle className="text-[32px] font-semibold tracking-tight text-[#ececec]">
+            Create an account
+          </CardTitle>
+          <CardDescription className="mx-auto max-w-80 text-[15px] leading-relaxed text-[#b4b4b4]">
+            Join CodersGPT to get smarter responses and start building today.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="flex flex-col gap-3 px-10 ">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
+          >
+            <FieldGroup className="flex flex-col gap-1">
+              {/* Username Field */}
+              <form.Field name="username">
+                {(field) => {
+                  const hasError =
+                    field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0;
+                  return (
+                    <div className="flex flex-col">
+                      <Input
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Username"
+                        className={cn(
+                          "h-13 rounded-xl border-[#424242] text-[#676767] bg-transparent px-4 text-base transition-colors focus:ring-0",
+                          hasError
+                            ? "border-red-500"
+                            : "focus:border-[#676767]",
+                        )}
+                      />
+                      <div className="min-h-5 px-1 py-0.5">
+                        {hasError && (
+                          <FieldError
+                            className="text-xs text-red-500 animate-in fade-in slide-in-from-top-1 duration-200"
+                            errors={field.state.meta.errors}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                }}
+              </form.Field>
+
+              {/* Email Field */}
+              <form.Field name="email">
+                {(field) => {
+                  const hasError =
+                    field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0;
+                  return (
+                    <div className="flex flex-col">
+                      <Input
+                        type="email"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Email address"
+                        className={cn(
+                          "h-13 rounded-xl border-[#424242] text-[#676767] bg-transparent px-4 text-base transition-colors focus:ring-0",
+                          hasError
+                            ? "border-red-500"
+                            : "focus:border-[#676767]",
+                        )}
+                      />
+                      <div className="min-h-5 px-1 py-0.5">
+                        {hasError && (
+                          <FieldError
+                            className="text-xs text-red-500 animate-in fade-in slide-in-from-top-1 duration-200"
+                            errors={field.state.meta.errors}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                }}
+              </form.Field>
+
+              {/* Password Field */}
+              <form.Field name="password">
+                {(field) => {
+                  const hasError =
+                    field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0;
+                  return (
+                    <div className="flex flex-col">
+                      <Input
+                        type="password"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Password"
+                        className={cn(
+                          "h-13 rounded-xl border-[#424242] text-[#676767] bg-transparent px-4 text-base transition-colors focus:ring-0",
+                          hasError
+                            ? "border-red-500"
+                            : "focus:border-[#676767]",
+                        )}
+                      />
+                      <div className="min-h-5 px-1 py-0.5">
+                        {hasError && (
+                          <FieldError
+                            className="text-xs text-red-500 animate-in fade-in slide-in-from-top-1 duration-200"
+                            errors={field.state.meta.errors}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                }}
+              </form.Field>
+
+              <form.Subscribe
+                selector={(state) => [
+                  state.canSubmit,
+                  state.isSubmitting,
+                  state.isDirty,
+                ]}
+              >
+                {([canSubmit, isSubmitting, isDirty]) => (
+                  <Button
+                    type="submit"
+                    className="mt-2 h-13 w-full rounded-full bg-[#ececec] text-[16px] font-semibold text-black hover:bg-white disabled:opacity-50"
+                    disabled={!canSubmit || !isDirty}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                      "Sign Up"
+                    )}
+                  </Button>
+                )}
+              </form.Subscribe>
+            </FieldGroup>
+          </form>
+        </CardContent>
+
+        <CardFooter className="flex flex-col items-center pb-6">
+          <div className="text-sm text-[#b4b4b4]">
+            Already have an account?{" "}
+            <Link href="/signin" className="text-white hover:underline">
+              Sign In
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+// Icons (GoogleIcon, etc.) should remain as they were in the login file...
