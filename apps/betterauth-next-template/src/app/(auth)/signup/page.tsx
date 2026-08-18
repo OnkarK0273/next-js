@@ -2,16 +2,11 @@
 
 import * as z from "zod";
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
-
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
-
 import { Loader2 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
-
 import { Button } from "@/components/ui/button";
 
 import {
@@ -24,6 +19,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FieldError, FieldGroup } from "@/components/ui/field";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "@/components/ui/toast";
 
 const signupSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -35,6 +32,7 @@ type SocialProvider = "google" | "github";
 
 export default function SignupForm() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [pendingProvider, setPendingProvider] = useState<SocialProvider | null>(
     null,
   );
@@ -44,7 +42,40 @@ export default function SignupForm() {
     validators: {
       onChange: signupSchema,
     },
-    onSubmit: async ({ value }) => {},
+    onSubmit: async ({ value }) => {
+      await authClient.signUp.email(
+        {
+          email: value.email,
+          password: value.password,
+          name: value.username,
+          callbackURL: "/",
+        },
+        {
+          onRequest: (ctx) => {
+            //show loading
+            setLoading(true);
+          },
+          onSuccess: (ctx) => {
+            //redirect to the dashboard or sign in page
+            setLoading(false);
+            toast.add({
+              type: "success",
+              description: "Account has been created.",
+            });
+            router.push("/");
+          },
+          onError: (ctx) => {
+            // display the error message
+            setLoading(false);
+            toast.add({
+              type: "error",
+              description: ctx.error.message,
+              priority: "high",
+            });
+          },
+        },
+      );
+    },
   });
 
   return (
@@ -182,7 +213,7 @@ export default function SignupForm() {
                     className="mt-2 h-13 w-full rounded-full bg-[#ececec] text-[16px] font-semibold text-black hover:bg-white disabled:opacity-50"
                     disabled={!canSubmit || !isDirty}
                   >
-                    {isSubmitting ? (
+                    {isSubmitting || loading ? (
                       <Loader2 className="size-5 animate-spin" />
                     ) : (
                       "Sign Up"

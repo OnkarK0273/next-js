@@ -4,7 +4,7 @@ import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
-
+import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,12 @@ const formSchema = z.object({
 type SocialProvider = "google" | "github";
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [pendingProvider, setPendingProvider] = useState<SocialProvider | null>(
     null,
   );
@@ -39,7 +43,38 @@ export default function LoginForm() {
       onChange: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("value", value);
+      await authClient.signIn.email(
+        {
+          email: value.email,
+          password: value.password,
+
+          callbackURL: "/",
+        },
+        {
+          onRequest: (ctx) => {
+            //show loading
+            setLoading(true);
+          },
+          onSuccess: (ctx) => {
+            //redirect to the dashboard or sign in page
+            setLoading(false);
+            toast.add({
+              type: "success",
+              description: "Login successfull",
+            });
+            router.push("/");
+          },
+          onError: (ctx) => {
+            // display the error message
+            setLoading(false);
+            toast.add({
+              type: "error",
+              description: ctx.error.message,
+              priority: "high",
+            });
+          },
+        },
+      );
     },
   });
 
@@ -153,7 +188,7 @@ export default function LoginForm() {
                     className="mt-2 h-13 w-full rounded-full bg-[#ececec] text-[16px] font-semibold text-black hover:bg-white active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#ececec]"
                     disabled={!canSubmit || !isDirty}
                   >
-                    {isSubmitting ? (
+                    {isSubmitting || loading ? (
                       <Loader2 className="size-5 animate-spin" />
                     ) : (
                       "Continue"
