@@ -29,6 +29,7 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { GithubIcon, GoogleIcon } from "@/components/icons";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -47,7 +48,6 @@ export default function LoginForm() {
         {
           email: value.email,
           password: value.password,
-
           callbackURL: "/",
         },
         {
@@ -78,20 +78,70 @@ export default function LoginForm() {
     },
   });
 
+  const handleSocialLogin = async (provider: SocialProvider) => {
+    setPendingProvider("google");
+    try {
+      await authClient.signIn.social({
+        provider: provider,
+      });
+    } catch (error) {
+      console.log(error);
+      setPendingProvider(null);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center h-dvh bg-neutral-900">
       <Card className="w-full max-w-110  bg-[#121212] ">
         <CardHeader className="space-y-4 pt-4 text-center">
           <CardTitle className="text-[32px] font-semibold tracking-tight text-[#ececec]">
-            Log in CodersGPT
+            Signin
           </CardTitle>
-          <CardDescription className="mx-auto max-w-80 text-[15px] leading-relaxed text-[#b4b4b4]">
-            You&apos;ll get smarter responses and can upload files, images, and
-            more.
-          </CardDescription>
         </CardHeader>
 
-        <CardContent className="flex flex-col gap-3 px-10">
+        <CardContent className="flex flex-col gap-3 px-10 text-white">
+          {/* Social Buttons */}
+          <div className="flex flex-col gap-3">
+            {/* Google Button */}
+            <Button
+              variant="outline"
+              disabled={false}
+              className="h-13 w-full rounded-xl border-[#424242] bg-transparent text-[15px] font-normal transition-colors hover:bg-[#2f2f2f] hover:text-white disabled:opacity-70"
+              onClick={() => {
+                handleSocialLogin("google");
+              }}
+            >
+              {pendingProvider === "google" ? (
+                <Loader2 className="mr-2 size-5 animate-spin" />
+              ) : (
+                <GoogleIcon className="mr-2 size-5" />
+              )}
+              Continue with Google
+            </Button>
+
+            {/* GitHub Button */}
+            <Button
+              variant="outline"
+              disabled={false}
+              className="h-13 w-full rounded-xl border-[#424242] bg-transparent text-[15px] font-normal transition-colors hover:bg-[#2f2f2f] hover:text-white disabled:opacity-70"
+              onClick={() => {}}
+            >
+              {pendingProvider === "github" ? (
+                <Loader2 className="mr-2 size-5 animate-spin" />
+              ) : (
+                <GithubIcon className="mr-2 size-5" />
+              )}
+              Continue with GitHub
+            </Button>
+          </div>
+
+          <div className="relative my-6 flex items-center justify-center">
+            <div className="absolute w-full border-t border-[#333]"></div>
+            <span className="relative bg-[#121212] px-3 text-[11px] font-medium uppercase tracking-widest text-[#888]">
+              OR
+            </span>
+          </div>
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
