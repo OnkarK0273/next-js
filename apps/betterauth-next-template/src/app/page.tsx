@@ -109,7 +109,7 @@ export default async function Home() {
             Database Stack
           </Badge>
           <h1 className="mt-8 max-w-4xl text-4xl font-bold leading-[1.05] tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl">
-            Next.js 15 auth,{" "}
+            Next.js 16 auth,{" "}
             <span className="bg-gradient-to-r from-indigo-300 via-violet-300 to-emerald-300 bg-clip-text text-transparent">
               finally in its place.
             </span>
