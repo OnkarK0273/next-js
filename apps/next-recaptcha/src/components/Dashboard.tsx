@@ -17,7 +17,7 @@ function Dashboard() {
               className="flex items-center justify-center gap-2 py-1 rounded-lg text-sm font-medium transition-all"
             >
               <ShieldCheck className="h-4 w-4 text-blue-500" />
-              <span>reCAPTCHA v2 (Checkbox)</span>
+              <span>reCAPTCHA v2</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -25,7 +25,7 @@ function Dashboard() {
               className="flex items-center justify-center gap-2 py-1 rounded-lg text-sm font-medium transition-all"
             >
               <Sparkles className="h-4 w-4 text-emerald-500" />
-              <span>reCAPTCHA v3 (Score)</span>
+              <span>reCAPTCHA v3</span>
             </TabsTrigger>
           </TabsList>
 
